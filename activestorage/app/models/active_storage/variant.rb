@@ -133,7 +133,7 @@ class ActiveStorage::Variant
       image.format("PNG") unless WEB_IMAGE_CONTENT_TYPES.include?(blob.content_type)
     end
 
-    def upload(image)
+    def upload(file)
       service.upload(key, file)
       # File.open(image.path, "r") { |file| service.upload(key, file) }
     end
