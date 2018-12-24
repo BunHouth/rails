@@ -82,10 +82,10 @@ class ActiveStorage::Variant
     end
 
     def process
-      open_image do |image|
-        transform image
-        format image
-        upload image
+      download_blob_to_tempfile do |image|
+        transform image do |output|
+          upload output
+        end
       end
     end
 
@@ -119,7 +119,14 @@ class ActiveStorage::Variant
     end
 
     def transform(image)
-      variation.transform(image)
+      # variation.transform(image)
+      format = "png" unless WEB_IMAGE_CONTENT_TYPES.include?(blob.content_type)
+      result = variation.transform(image, format: format)
+      begin
+        yield result
+      ensure
+        result.close!
+      end        
     end
 
     def format(image)
@@ -127,6 +134,7 @@ class ActiveStorage::Variant
     end
 
     def upload(image)
-      File.open(image.path, "r") { |file| service.upload(key, file) }
+      service.upload(key, file)
+      # File.open(image.path, "r") { |file| service.upload(key, file) }
     end
 end
